@@ -10,12 +10,6 @@ from nltk.stem import WordNetLemmatizer
 from nltk.corpus import stopwords
 
 # Download NLTK requirements
-nltk_data_dir = os.path.join(os.getcwd(), "nltk_data")
-nltk.download('punkt', download_dir=nltk_data_dir)
-nltk.download('wordnet', download_dir=nltk_data_dir)
-nltk.download('stopwords', download_dir=nltk_data_dir)
-nltk.data.path.append(nltk_data_dir)
-
 
 # Load saved model and vectorizer
 model = joblib.load("sentiment_model.pkl")
