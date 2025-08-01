@@ -8,18 +8,17 @@ import pandas as pd
 import numpy as np
 import re
 
-from nltk.tokenize import word_tokenize
+from nltk.tokenize import TreebankWordTokenizer
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import stopwords
 
-# Define NLTK data path
+# Define NLTK data path and download required resources
 nltk_data_path = os.path.join(os.getcwd(), "nltk_data")
 nltk.data.path.append(nltk_data_path)
 
-# Download only if not already present
-for pkg in ['punkt', 'stopwords', 'wordnet']:
+for pkg in ['stopwords', 'wordnet']:
     try:
-        nltk.data.find(f"{'tokenizers' if pkg == 'punkt' else 'corpora'}/{pkg}")
+        nltk.data.find(f"corpora/{pkg}")
     except LookupError:
         nltk.download(pkg, download_dir=nltk_data_path)
 
@@ -27,19 +26,22 @@ for pkg in ['punkt', 'stopwords', 'wordnet']:
 model = joblib.load("sentiment_model.pkl")
 vectorizer = joblib.load("tfidf_vectorizer.pkl")
 
+# Use Treebank tokenizer to avoid punkt errors
+tokenizer = TreebankWordTokenizer()
+
 # Preprocessing function
 def preprocess_text(text):
     text = str(text).lower()
     text = text.translate(str.maketrans('', '', string.punctuation))
     text = emoji.replace_emoji(text, replace='')
-    tokens = word_tokenize(text)
+    tokens = tokenizer.tokenize(text)
     tokens = [word for word in tokens if word.isalpha()]
     lemmatizer = WordNetLemmatizer()
     stop_words = set(stopwords.words('english'))
     tokens = [lemmatizer.lemmatize(word) for word in tokens]
     tokens = [word for word in tokens if word not in stop_words]
     return " ".join(tokens)
-    
+
 # Streamlit UI
 st.title("📖 Sentiment Analysis App")
 st.write("Enter a review below and see if it's Positive or Negative:")
